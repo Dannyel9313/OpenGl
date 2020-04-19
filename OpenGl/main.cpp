@@ -3,12 +3,9 @@
 #include <iostream>
 #include <string>
 #include "Shader.h"
+#include "Window.h"
 
-void InitGLFW();
-int InitGlad();
 void CheckProgramLinking(unsigned int nProgramID);
-void processInput(GLFWwindow* window);
-void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 bool ArrowUpButtonPressed(GLFWwindow* window);
 bool ArrowDownButtonPressed(GLFWwindow* window);
 
@@ -20,25 +17,7 @@ float vertices[] = {
 
 int main()
 {
-    InitGLFW();
-
-    GLFWwindow* window = glfwCreateWindow(1200, 800, "Danny's Window", NULL, NULL);
-    if (window == NULL)
-    {
-        std::cout << "Failed to create GLFW window" << std::endl;
-        glfwTerminate();
-        return -1;
-    }
-    glfwMakeContextCurrent(window);
-
-    if (InitGlad() < 0)
-    {
-        std::cout << "Glad is not inited !!!" << std::endl;
-    }
-
-    glViewport(0, 0, 1200, 800);
-
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    Window main_window(1200, 800, "Danny's Window");
 
     ////// creating a VBO Vertex Buffer Object/////////////////////////
     unsigned int VBO;
@@ -52,7 +31,7 @@ int main()
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), &vertices, GL_STATIC_DRAW);
 
-    Shader shader("../vertexShader.txt", "../fragmentShader.txt");
+    Shader shader("../vertex_texture_shader.txt", "../fragment_texture__shader.txt");
 
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
@@ -63,16 +42,16 @@ int main()
     
     shader.UseProgram();
 
-    while (!glfwWindowShouldClose(window))
+    while (!main_window.IsWindowClosed())
     {
-        processInput(window);
+        main_window.ProcessInput();
         glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
    
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
-        glfwSwapBuffers(window);
+        main_window.SwapBuffers();
         glfwPollEvents();
     }
 
@@ -81,35 +60,6 @@ int main()
 
     glfwTerminate();
     return 0;
-}
-
-void InitGLFW()
-{
-    glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-}
-
-int InitGlad()
-{
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-    {
-        std::cout << "Failed to initialize GLAD" << std::endl;
-        return -1;
-    }
-    return 0;
-}
-
-void processInput(GLFWwindow* window)
-{
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
-}
-
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
-    glViewport(0, 0, width, height);
 }
 
 void CheckProgramLinking(unsigned int nProgramID)
